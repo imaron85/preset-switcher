@@ -150,11 +150,14 @@ without `fallback`, the step is deferred and retried at the next start.
 ```json5
 { type: "resourcePacks", disable: ["file/Heavy Pack.zip"] }
 { type: "resourcePacks", enable: ["file/Fresh Animations.zip", { $firstMatch: "resourcepacks/Better Clouds*", prefix: "file/" }] }
+{ type: "resourcePacks", enable: [{ pack: "file/Fresh Animations.zip", after: "file/Eating Animation.zip" }] }
 { type: "resourcePacks", set: ["vanilla", "fabric", "file/Pack A.zip"] }
 ```
 
-`set` replaces the whole list; otherwise `disable` removes and `enable` appends (on top, i.e. highest priority) packs,
-keeping the ones the player added. `file/` prefixes are optional when comparing. Packs that are incompatible with
+`set` replaces the whole list; otherwise `disable` removes and `enable` adds packs, keeping the ones the player added.
+An enabled pack is appended (on top, i.e. highest priority) unless it is given as `{ pack, after }`: then it is
+inserted directly after (= above) the `after` pack if that is enabled, so a preset can restore the pack's original
+position after another preset disabled it. `file/` prefixes are optional when comparing. Packs that are incompatible with
 the game version are dropped by vanilla.
 
 ### Complete example

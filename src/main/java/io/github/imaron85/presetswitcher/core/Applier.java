@@ -223,15 +223,26 @@ public final class Applier {
 	private void resourcePacks(ResourcePacks op, List<String> changed) throws IOException, Unresolved {
 		Path options = FileOps.resolve(gameDir, "options.txt");
 		String original = Files.exists(options) ? Files.readString(options, StandardCharsets.UTF_8) : null;
-		List<String> packs = stringList(original == null ? null : OptionsFormat.get(original, "resourcePacks"));
+		List<String> before = stringList(original == null ? null : OptionsFormat.get(original, "resourcePacks"));
+		List<String> packs = new ArrayList<>(before);
 		List<String> set = op.set() == null ? null : resolvePacks(op.set());
-		List<String> enable = resolvePacks(op.enable());
+		List<PackRef> enable = resolvePackRefs(op.enable());
 		List<String> disable = resolvePacks(op.disable());
 
 		if (set != null) packs = new ArrayList<>(set);
 		for (String d : disable) packs.removeIf(p -> samePack(p, d));
-		for (String e : enable) if (packs.stream().noneMatch(p -> samePack(p, e))) packs.add(e);
+		for (PackRef e : enable) {
+			if (packs.stream().anyMatch(p -> samePack(p, e.id()))) continue;
+			int at = -1;
+			if (e.after() != null) for (int i = 0; i < packs.size(); i++) if (samePack(packs.get(i), e.after())) at = i + 1;
+			if (at >= 0) packs.add(at, e.id());
+			else packs.add(e.id());
+		}
 
+		if (original != null && packs.equals(before)) {
+			log.info(op.id() + ": resource packs unchanged " + packs);
+			return;
+		}
 		List<Assignment> assignments = List.of(new Assignment(List.of("resourcePacks"), new ArrayList<Object>(packs)));
 		String updated = new OptionsFormat(dataVersion).apply(original, assignments);
 		if (!updated.equals(original)) {
@@ -247,6 +258,33 @@ public final class Applier {
 			Object v = resolveValue(o);
 			if (!(v instanceof String s)) throw new IllegalArgumentException("resource pack entries must be strings or $firstMatch directives: " + o);
 			out.add(s);
+		}
+		return out;
+	}
+
+	/** An enabled pack and, optionally, the pack it is placed directly above (after, in options.txt order). */
+	private record PackRef(String id, String after) {
+	}
+
+	/** Entries are pack ids, {@code $firstMatch} directives, or {@code {pack: <id or directive>, after: "<id>"}}. */
+	private List<PackRef> resolvePackRefs(List<Object> entries) throws Unresolved {
+		List<PackRef> out = new ArrayList<>();
+		for (Object o : entries) {
+			if (o instanceof Map<?, ?> m && m.containsKey("pack")) {
+				for (Object k : m.keySet()) {
+					if (!k.equals("pack") && !k.equals("after")) throw new IllegalArgumentException("unknown key '" + k + "' in resource pack entry (pack, after)");
+				}
+				Object id = resolveValue(m.get("pack"));
+				Object after = m.get("after");
+				if (!(id instanceof String s) || (after != null && !(after instanceof String))) {
+					throw new IllegalArgumentException("\"pack\" and \"after\" must be strings (or a $firstMatch directive for \"pack\"): " + o);
+				}
+				out.add(new PackRef(s, (String) after));
+			} else {
+				Object v = resolveValue(o);
+				if (!(v instanceof String s)) throw new IllegalArgumentException("resource pack entries must be strings, $firstMatch directives or {pack, after} objects: " + o);
+				out.add(new PackRef(s, null));
+			}
 		}
 		return out;
 	}

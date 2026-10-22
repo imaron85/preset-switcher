@@ -7,25 +7,32 @@ import java.util.List;
 final class Lines {
 	final List<String> lines;
 	final String newline;
+	/** Whether the last line ends with a line separator (kept as found; new files get one). */
+	final boolean trailingNewline;
 
-	private Lines(List<String> lines, String newline) {
+	private Lines(List<String> lines, String newline, boolean trailingNewline) {
 		this.lines = lines;
 		this.newline = newline;
+		this.trailingNewline = trailingNewline;
 	}
 
 	static Lines of(String content) {
-		if (content == null || content.isEmpty()) return new Lines(new ArrayList<>(), System.lineSeparator().equals("\r\n") ? "\r\n" : "\n");
+		if (content == null || content.isEmpty()) return new Lines(new ArrayList<>(), System.lineSeparator().equals("\r\n") ? "\r\n" : "\n", true);
 		if (content.startsWith("\uFEFF")) content = content.substring(1);
 		String newline = content.contains("\r\n") ? "\r\n" : "\n";
 		List<String> lines = new ArrayList<>(List.of(content.split("\r?\n", -1)));
 		// A trailing newline produces one empty last element; it is re-added on output.
-		if (!lines.isEmpty() && lines.getLast().isEmpty()) lines.removeLast();
-		return new Lines(lines, newline);
+		boolean trailing = !lines.isEmpty() && lines.getLast().isEmpty();
+		if (trailing) lines.removeLast();
+		return new Lines(lines, newline, trailing);
 	}
 
 	String join() {
 		StringBuilder sb = new StringBuilder();
-		for (String line : lines) sb.append(line).append(newline);
+		for (int i = 0; i < lines.size(); i++) {
+			sb.append(lines.get(i));
+			if (i < lines.size() - 1 || trailingNewline) sb.append(newline);
+		}
 		return sb.toString();
 	}
 

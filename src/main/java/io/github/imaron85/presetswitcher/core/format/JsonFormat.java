@@ -28,7 +28,8 @@ public final class JsonFormat implements FileFormat {
 		Object root = original == null || original.isBlank() ? new LinkedHashMap<String, Object>() : Json.parse(original);
 		for (Assignment a : assignments) set(root, a.path(), toJson(a.value()));
 		String indent = original == null ? "  " : Json.detectIndent(original);
-		return Json.write(root, indent) + "\n";
+		boolean trailingNewline = original == null || original.endsWith("\n");
+		return Json.write(root, indent) + (trailingNewline ? "\n" : "");
 	}
 
 	private static Object toJson(Object value) {

@@ -149,4 +149,17 @@ class EngineTest {
 		assertEquals("shaderPack=ComplementaryUnbound_r5.6 + EuphoriaPatches_1.7.zip\nenableShaders=true\n", Files.readString(game.resolve("config/iris.properties")));
 		assertEquals("version:5023\nresourcePacks:[\"file/FreshAnimations_v1.10.zip\"]\n", options(game));
 	}
+
+	@Test
+	void enableAfterRestoresOrder(@TempDir Path game) throws IOException {
+		setup(game, """
+				{ defaultPreset: "on", presets: [
+				  { id: "off", operations: [ { type: "resourcePacks", disable: ["file/B.zip"] } ] },
+				  { id: "on", operations: [ { type: "resourcePacks", enable: [ { pack: "file/B.zip", after: "file/A.zip" }, { pack: "file/D.zip", after: "file/Missing.zip" } ] } ] },
+				]}
+				""");
+		Files.writeString(game.resolve("options.txt"), "version:5023\nresourcePacks:[\"vanilla\",\"file/A.zip\",\"file/C.zip\"]\n");
+		engine(game);
+		assertEquals("version:5023\nresourcePacks:[\"vanilla\",\"file/A.zip\",\"file/B.zip\",\"file/C.zip\",\"file/D.zip\"]\n", options(game));
+	}
 }
