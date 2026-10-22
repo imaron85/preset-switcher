@@ -17,6 +17,10 @@ Requirements: Minecraft 26.3, Fabric Loader 0.19.3 or newer, Java 25. Fabric API
 (without Fabric API the UI is English only, because Fabric API loads mod language files).
 The mod declares `"environment": "client"`: on a dedicated server installed from the same pack it is not loaded.
 
+![First-launch chooser](docs/chooser.png)
+
+![Options > Presets...](docs/options-button.png)
+
 ## For players
 
 - First start: choose a preset, or keep the pack's default.
