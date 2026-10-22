@@ -1,0 +1,18 @@
+{
+	"presetswitcher.title": "Einstellungs-Presets",
+	"presetswitcher.subtitle.first": "Wähle, wie das Spiel aussehen und laufen soll. Du kannst das später unter Optionen > Presets... ändern.",
+	"presetswitcher.subtitle": "Das gewählte Preset wird beim nächsten Spielstart angewendet. Tastenbelegung und andere persönliche Einstellungen bleiben erhalten.",
+	"presetswitcher.error": "Die Preset-Definitionen konnten nicht geladen werden:",
+	"presetswitcher.none": "Dieses Modpack definiert keine Presets (config/presetswitcher/presets.json5).",
+	"presetswitcher.use": "Preset verwenden",
+	"presetswitcher.keep": "%s behalten",
+	"presetswitcher.current": "(aktiv)",
+	"presetswitcher.pending": "(nach Neustart)",
+	"presetswitcher.restart.title": "Neustart erforderlich",
+	"presetswitcher.restart.message": "Das Preset „%s“ wird beim nächsten Spielstart angewendet. Tastenbelegung und andere persönliche Einstellungen bleiben erhalten.",
+	"presetswitcher.restart.quit": "Spiel beenden",
+	"presetswitcher.restart.later": "Später",
+	"presetswitcher.button": "Presets...",
+	"presetswitcher.tooltip": "Aktuelles Preset: %s",
+	"presetswitcher.tooltip.pending": "Preset nach Neustart: %s"
+}

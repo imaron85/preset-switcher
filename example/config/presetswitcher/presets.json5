@@ -1,0 +1,36 @@
+// Preset Switcher test definitions (generic, phase 1)
+{
+  formatVersion: 1,
+  title: "Choose your settings",
+  defaultPreset: "balanced",
+
+  // Runs before every preset: ship first-launch defaults (replaces YOSBR).
+  base: [
+    { type: "copy", from: "base/options.txt", to: "options.txt", when: "missing" },
+  ],
+
+  presets: [
+    {
+      id: "fast",
+      name: "Fast",
+      description: "Short render distance and minimal particles. For older PCs and laptops.",
+      operations: [
+        { type: "merge", file: "options.txt", values: { graphicsPreset: "custom", renderDistance: 4, simulationDistance: 5, particles: 2, renderClouds: "false" } },
+        { type: "merge", file: "config/modmenu.json", values: { compact_list: true, count_libraries: false } },
+        { type: "merge", file: "config/example.properties", from: "fast/example.properties" },
+        { type: "resourcePacks", disable: ["file/PresetTestPack.zip"] },
+      ],
+    },
+    {
+      id: "balanced",
+      name: "Balanced",
+      description: "The pack's tuned defaults, with the test resource pack enabled.",
+      operations: [
+        { type: "merge", file: "options.txt", values: { graphicsPreset: "custom", renderDistance: 10, simulationDistance: 8, particles: 0, renderClouds: "true" } },
+        { type: "merge", file: "config/modmenu.json", values: { compact_list: false, count_libraries: true } },
+        { type: "merge", file: "config/example.properties", from: "balanced/example.properties" },
+        { type: "resourcePacks", enable: ["file/PresetTestPack.zip"] },
+      ],
+    },
+  ],
+}

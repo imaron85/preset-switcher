@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "presetswitcher",
+	"version": "${version}",
+	"name": "Preset Switcher",
+	"description": "Lets modpacks offer selectable settings presets (e.g. Potato / Default / Beautiful). Players pick one on first launch and can switch later from Options > Presets...; the preset's configs are merged in before other mods load them, keeping keybinds and personal settings.",
+	"authors": [
+		"ImAron"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/preset-switcher",
+		"sources": "https://github.com/imaron85/preset-switcher",
+		"issues": "https://github.com/imaron85/preset-switcher/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/presetswitcher/icon.png",
+	"environment": "client",
+	"languageAdapters": {
+		"presetswitcher_early": "io.github.imaron85.presetswitcher.EarlyEntry"
+	},
+	"entrypoints": {
+		"preLaunch": [
+			"io.github.imaron85.presetswitcher.EarlyEntry"
+		],
+		"modmenu": [
+			"io.github.imaron85.presetswitcher.client.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"presetswitcher.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.3",
+		"java": ">=25"
+	},
+	"suggests": {
+		"modmenu": "*"
+	}
+}

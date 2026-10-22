@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "io.github.imaron85.presetswitcher.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"GuiMixin",
+		"OptionsScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

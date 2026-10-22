@@ -1,0 +1,9 @@
+version:5023
+onboardAccessibility:false
+maxFps:30
+pauseOnLostFocus:false
+soundCategory_master:0.0
+tutorialStep:none
+skipMultiplayerWarning:true
+joinedFirstServer:true
+renderDistance:8
