@@ -85,7 +85,7 @@ entrypoint. Every config file a mod reads later sees the preset's values.
     {
       id: "potato",                     // letters, digits, _ - . ; stored in the player's state
       name: "Potato",                   // string or { en_us: "...", de_de: "..." }
-      description: "For weak PCs.",     // shown under the name (wrapped)
+      description: "For weak PCs.",     // shown under the name (wrapped); § formatting codes work, e.g. "§cWarning§r"
       extends: "default",               // optional, one id or a list; parents' operations run first
       operations: [ /* see below */ ],
     },

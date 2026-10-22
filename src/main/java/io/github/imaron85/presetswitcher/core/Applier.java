@@ -67,7 +67,7 @@ public final class Applier {
 				if (op.optional()) {
 					log.info(op.id() + ": skipped (" + e.getMessage() + ")");
 				} else {
-					log.warn(op.id() + ": deferred to the next launch: " + e.getMessage());
+					log.info(op.id() + ": deferred to the next start: " + e.getMessage());
 					deferred.add(op.id());
 				}
 			} catch (Exception e) {
