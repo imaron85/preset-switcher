@@ -155,6 +155,6 @@ class FormatsTest {
 				""");
 		assertEquals("Ä", d.presets().get("a").name().get("de_de"));
 		assertEquals("A", d.presets().get("a").name().get("fr_fr"));
-		assertTrue(d.operationsOf("b").getFirst() instanceof Definitions.Merge);
+		assertTrue(d.operationsOf("b").get(0) instanceof Definitions.Merge);
 	}
 }

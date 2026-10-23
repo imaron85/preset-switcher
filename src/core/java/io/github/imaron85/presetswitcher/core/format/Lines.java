@@ -22,8 +22,8 @@ final class Lines {
 		String newline = content.contains("\r\n") ? "\r\n" : "\n";
 		List<String> lines = new ArrayList<>(List.of(content.split("\r?\n", -1)));
 		// A trailing newline produces one empty last element; it is re-added on output.
-		boolean trailing = !lines.isEmpty() && lines.getLast().isEmpty();
-		if (trailing) lines.removeLast();
+		boolean trailing = !lines.isEmpty() && lines.get(lines.size() - 1).isEmpty();
+		if (trailing) lines.remove(lines.size() - 1);
 		return new Lines(lines, newline, trailing);
 	}
 

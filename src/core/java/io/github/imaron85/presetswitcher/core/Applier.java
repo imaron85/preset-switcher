@@ -58,11 +58,9 @@ public final class Applier {
 		for (Operation op : ops) {
 			if (only != null && !only.contains(op.id())) continue;
 			try {
-				switch (op) {
-					case Merge m -> merge(m, changed);
-					case Copy c -> copy(c, changed);
-					case ResourcePacks r -> resourcePacks(r, changed);
-				}
+				if (op instanceof Merge m) merge(m, changed);
+				else if (op instanceof Copy c) copy(c, changed);
+				else if (op instanceof ResourcePacks r) resourcePacks(r, changed);
 			} catch (Unresolved e) {
 				if (op.optional()) {
 					log.info(op.id() + ": skipped (" + e.getMessage() + ")");
@@ -112,14 +110,18 @@ public final class Applier {
 		}
 	}
 
-	/** Options that vanilla's graphics preset (26.x) overwrites at every start unless graphicsPreset is "custom". */
+	/** Options that vanilla's graphics preset (Minecraft 1.21.11+) overwrites at every start unless graphicsPreset is "custom". */
 	private static final Set<String> GRAPHICS_PRESET_KEYS = Set.of("renderDistance", "simulationDistance", "particles", "renderClouds",
 			"ao", "biomeBlendRadius", "prioritizeChunkUpdates", "mipmapLevels", "entityShadows", "entityDistanceScaling", "menuBackgroundBlurriness",
 			"cloudRange", "cutoutLeaves", "improvedTransparency", "weatherRadius", "maxAnisotropyBit", "textureFiltering");
+	/** Data version of Minecraft 1.21.11, the first release with the graphicsPreset option. */
+	private static final int GRAPHICS_PRESET_SINCE = 4671;
 
 	private void warnGraphicsPreset(Merge op, String options, List<Assignment> assignments) {
 		String preset = OptionsFormat.get(options, "graphicsPreset");
 		if (preset != null && preset.replace("\"", "").equals("custom")) return;
+		// Older versions have no graphics preset; with an unknown version only warn when the file has the option
+		if (preset == null && (dataVersion < 0 || dataVersion < GRAPHICS_PRESET_SINCE)) return;
 		List<String> overridden = assignments.stream().map(Assignment::key).filter(GRAPHICS_PRESET_KEYS::contains).toList();
 		if (!overridden.isEmpty()) {
 			log.warn(op.id() + ": options.txt has graphicsPreset " + (preset == null ? "unset (vanilla default: fancy)" : preset)
@@ -176,7 +178,7 @@ public final class Applier {
 			List<Path> matches = FileOps.glob(gameDir, glob.replace('\\', '/'));
 			if (!matches.isEmpty()) {
 				Object prefix = m.get("prefix");
-				return (prefix instanceof String p ? p : "") + matches.getFirst().getFileName().toString();
+				return (prefix instanceof String p ? p : "") + matches.get(0).getFileName().toString();
 			}
 		} catch (IOException e) {
 			throw new Unresolved("cannot list " + glob + ": " + e.getMessage());

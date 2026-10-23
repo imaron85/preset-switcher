@@ -1,8 +1,6 @@
 package io.github.imaron85.presetswitcher.client;
 
-import io.github.imaron85.presetswitcher.PresetSwitcher;
 import io.github.imaron85.presetswitcher.core.PresetEngine;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,13 +13,13 @@ public final class OptionsButton {
 
 	/** Shown when the pack ships definitions (or broken ones, so the error is visible). */
 	public static boolean visible() {
-		PresetEngine engine = PresetSwitcher.engine();
+		PresetEngine engine = ClientEngine.get();
 		return engine.hasDefinitions() || engine.loadError() != null;
 	}
 
 	public static Button create(Screen parent) {
-		PresetEngine engine = PresetSwitcher.engine();
-		Button button = Button.builder(Texts.tr("button", "Presets..."), b -> Minecraft.getInstance().gui.setScreen(PresetScreen.open(parent))).build();
+		PresetEngine engine = ClientEngine.get();
+		Button button = Button.builder(Texts.tr("button", "Presets..."), b -> ScreenCompat.setScreen(PresetScreen.open(parent))).build();
 		if (engine.hasDefinitions()) {
 			String name = Texts.presetName(engine.definitions(), engine.effectivePreset());
 			Component tip = engine.restartPending()

@@ -244,7 +244,7 @@ public final class TomlFormat implements FileFormat {
 			Scan scan = scan(file.lines);
 			Table table = scan.tables.get(group.getKey());
 			List<String> newLines = new ArrayList<>();
-			for (Assignment a : group.getValue()) newLines.add(renderKey(a.path().getLast()) + " = " + render(a.value()));
+			for (Assignment a : group.getValue()) newLines.add(renderKey(a.path().get(a.path().size() - 1)) + " = " + render(a.value()));
 			if (table != null) {
 				int at;
 				if (group.getKey().isEmpty()) at = table.lastLine >= 0 ? table.lastLine + 1 : (scan.firstHeader >= 0 ? scan.firstHeader : file.lines.size());
@@ -252,9 +252,10 @@ public final class TomlFormat implements FileFormat {
 				if (group.getKey().isEmpty() && table.lastLine < 0 && scan.firstHeader >= 0) newLines.add("");
 				file.lines.addAll(at, newLines);
 			} else {
-				if (!file.lines.isEmpty() && !file.lines.getLast().isBlank()) file.lines.add("");
+				if (!file.lines.isEmpty() && !file.lines.get(file.lines.size() - 1).isBlank()) file.lines.add("");
 				List<String> header = new ArrayList<>();
-				for (String part : group.getValue().getFirst().path().subList(0, group.getValue().getFirst().path().size() - 1)) header.add(renderKey(part));
+				List<String> first = group.getValue().get(0).path();
+				for (String part : first.subList(0, first.size() - 1)) header.add(renderKey(part));
 				file.lines.add("[" + String.join(".", header) + "]");
 				file.lines.addAll(newLines);
 			}

@@ -5,8 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 /**
- * UI strings. English fallbacks are built in because mod language files are only loaded when Fabric API
- * (its resource loader) is installed, and this mod does not require it.
+ * UI strings. English fallbacks are built in because mod language files are only loaded when the loader's resource
+ * loading picks them up (Fabric needs Fabric API for that), and this mod does not require it.
  */
 final class Texts {
 	private Texts() {

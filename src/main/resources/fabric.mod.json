@@ -1,38 +1,38 @@
 {
 	"schemaVersion": 1,
-	"id": "presetswitcher",
+	"id": "${id}",
 	"version": "${version}",
-	"name": "Preset Switcher",
-	"description": "Lets modpacks offer selectable settings presets (e.g. Potato / Default / Beautiful). Players pick one on first launch and can switch later from Options > Presets...; the preset's configs are merged in before other mods load them, keeping keybinds and personal settings.",
+	"name": "${name}",
+	"description": "${description}",
 	"authors": [
-		"ImAron"
+		"${authors}"
 	],
 	"contact": {
-		"homepage": "https://modrinth.com/mod/preset-switcher",
-		"sources": "https://github.com/imaron85/preset-switcher",
-		"issues": "https://github.com/imaron85/preset-switcher/issues"
+		"homepage": "${homepage}",
+		"sources": "${sources}",
+		"issues": "${issues}"
 	},
-	"license": "MIT",
+	"license": "${license}",
 	"icon": "assets/presetswitcher/icon.png",
 	"environment": "client",
 	"languageAdapters": {
-		"presetswitcher_early": "io.github.imaron85.presetswitcher.EarlyEntry"
+		"presetswitcher_early": "io.github.imaron85.presetswitcher.fabric.EarlyEntry"
 	},
 	"entrypoints": {
 		"preLaunch": [
-			"io.github.imaron85.presetswitcher.EarlyEntry"
+			"io.github.imaron85.presetswitcher.fabric.EarlyEntry"
 		],
 		"modmenu": [
-			"io.github.imaron85.presetswitcher.client.ModMenuIntegration"
+			"io.github.imaron85.presetswitcher.fabric.ModMenuIntegration"
 		]
 	},
 	"mixins": [
 		"presetswitcher.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.19.3",
-		"minecraft": "~26.3",
-		"java": ">=25"
+		"fabricloader": ">=${fabric_loader}",
+		"minecraft": "${minecraft}",
+		"java": ">=${java}"
 	},
 	"suggests": {
 		"modmenu": "*"

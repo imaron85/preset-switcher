@@ -1,12 +1,13 @@
 {
 	"required": true,
+	"minVersion": "0.8",
 	"package": "io.github.imaron85.presetswitcher.mixin",
-	"compatibilityLevel": "JAVA_25",
+	"compatibilityLevel": "${mixin_java}",
 	"client": [
-		"GuiMixin",
+		"InitialScreensMixin",
 		"OptionsScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	}
+	}${refmap}
 }

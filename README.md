@@ -13,9 +13,30 @@ A small, client-only Fabric mod that lets **modpacks** offer selectable settings
   declared keys are applied again on the next start; otherwise live files are never touched.
 - Everything is data-driven (`config/presetswitcher/presets.json5`); there is no pack-specific code.
 
-Requirements: Minecraft 26.3, Fabric Loader 0.19.3 or newer, Java 25. Fabric API and Mod Menu are optional
-(without Fabric API the UI is English only, because Fabric API loads mod language files).
-The mod declares `"environment": "client"`: on a dedicated server installed from the same pack it is not loaded.
+Client-only mod for **Fabric** (also runs on **Quilt**), **NeoForge** and **Forge**, Minecraft **1.20 to 26.3**. Mod Menu
+(Fabric) is optional; the config button is in the mod list on NeoForge/Forge. Fabric API is optional (without it
+the UI is English only on Fabric, because Fabric API loads mod language files). On a dedicated server installed from
+the same pack the mod does nothing (Fabric: `"environment": "client"`; NeoForge: client-only mod; Forge: ignored on
+servers and not required by clients).
+
+### Supported versions
+
+| Minecraft | Fabric / Quilt jar | NeoForge jar | Forge jar |
+|---|---|---|---|
+| 1.20 – 1.20.1 | `fabric-1.20-1.20.1` | – (use the Forge jar on NeoForge 47.1) | `forge-1.20.1` |
+| 1.20.2 | `fabric-1.20.2` | – | – |
+| 1.20.3 – 1.20.4 | `fabric-1.20.3-1.20.4` | – | – |
+| 1.20.5 – 1.20.6 | `fabric-1.20.5-1.20.6` | – | – |
+| 1.21 – 1.21.5 | `fabric-1.21-1.21.5` | `neoforge-1.21-1.21.5` | – |
+| 1.21.6 – 1.21.8 | `fabric-1.21.6-1.21.8` | `neoforge-1.21.6-1.21.8` | – |
+| 1.21.9 – 1.21.11 | `fabric-1.21.9-1.21.11` | `neoforge-1.21.9-1.21.11` | – |
+| 26.1 – 26.1.2 | `fabric-26.1-26.1.2` | `neoforge-26.1-26.1.2` | – |
+| 26.2 | `fabric-26.2` | `neoforge-26.2` | – |
+| 26.3 | `fabric-26.3` | `neoforge-26.3` | – |
+
+File names are `preset-switcher-<version>+<jar>.jar`. Fabric Loader 0.15+ (26.1/26.2: 0.18.4+, 26.3: 0.19.3+), Java 17
+(1.20–1.20.4), 21 (1.20.5–1.21.11) or 25 (26.x). Not built: NeoForge for 1.20.2–1.20.6 (very few NeoForge modpacks
+use these versions) and Forge after 1.20.1 (very few Forge modpacks after 1.20.1).
 
 ![First-launch chooser](docs/chooser.png)
 
@@ -53,9 +74,10 @@ Rules for a pack that uses presets:
    the chosen preset's declared keys on the next start. Keep the folder stable between releases unless you want
    that.
 4. Never export `.presetswitcher/` with your instance.
-5. **Minecraft 26.x options.txt:** vanilla re-applies `graphicsPreset` (`fast`, `fancy`, `fabulous`) at every start
-   and overwrites render distance, simulation distance, particles, clouds, mipmaps, entity shadows and more. A
-   preset that sets any of these must also set `graphicsPreset: "custom"`. The log warns when it doesn't.
+5. **Minecraft 1.21.11+ options.txt:** vanilla re-applies `graphicsPreset` (`fast`, `fancy`, `fabulous`) at every
+   start and overwrites render distance, simulation distance, particles, clouds, mipmaps, entity shadows and more. A
+   preset that sets any of these must also set `graphicsPreset: "custom"`. The log warns when it doesn't. See
+   "Version notes" for other option keys that differ between versions.
 
 ### When presets are applied
 
@@ -67,9 +89,36 @@ Rules for a pack that uses presets:
 | The chosen preset no longer exists | `base` + the default preset are applied; the chooser is shown again. |
 | Nothing changed | Nothing is written. Steps that were *deferred* earlier (see `optional`/`createIfMissing`) are retried. |
 
-The mod hooks Fabric Loader's language-adapter setup, which runs right after mod discovery: before mixin
-configuration plugins (e.g. `sodium-mixins.properties`, `lithium.properties`) are read and before any `preLaunch`
-entrypoint. Every config file a mod reads later sees the preset's values.
+Presets are applied by an early hook that runs right after mod discovery, before any mod reads its configuration
+(mixin configuration plugins such as `sodium-mixins.properties`, mod config files, options.txt):
+
+| Loader | Hook | Runs |
+|---|---|---|
+| Fabric | language adapter declared in `fabric.mod.json` (never used to create entrypoints) | when Fabric Loader sets up language adapters, before the mixin subsystem starts and before `preLaunch` |
+| Quilt | same jar; Quilt creates the adapter, `preLaunch` is the fallback | as above |
+| NeoForge | `IModLanguageLoader` in a library jar nested in the mod jar (jar-in-jar) | after mod discovery, before the game layer / game content class loader is built, i.e. before mixin configs are applied and before mods are constructed and load their configs |
+| Forge 1.20.1 | `IModLanguageProvider` in a language-provider jar nested in the mod jar | after mod discovery, before the game layer is built (same as NeoForge) |
+
+Why nested jars on NeoForge/Forge: both loaders (ModLauncher and FancyModLoader 10+) refuse to load a jar that
+declares early services (locators, transformation services, graphics bootstrappers) as a mod, so the hook lives in a
+small library jar inside the mod jar; it contains the loader-independent core. The log line
+`[PresetSwitcher] starting from <hook>` shows which hook ran. If no hook ran (unknown loader), the presets are applied
+from the mod's constructor / first screen and the log warns.
+
+### Version notes
+
+- **options.txt keys differ between Minecraft versions.** Presets merge the keys exactly as written, so use the keys of
+  the target version (checked in the game's `Options` class): `graphicsPreset`, `cutoutLeaves`,
+  `improvedTransparency`, `textureFiltering`, `maxAnisotropyBit`, `weatherRadius`, `chunkSectionFadeInTime` exist from
+  1.21.11, which removed `graphicsMode` (0/1/2 = fast/fancy/fabulous, up to 1.21.10); `cloudRange` from 1.21.6,
+  `inactivityFpsLimit` from 1.21.2, `menuBackgroundBlurriness` from 1.20.5. Keys a version doesn't know are dropped
+  by the game the next time it saves options.txt.
+- options.txt written by the mod starts with the game's data version (`version:` line) so vanilla does not run its
+  option data fixers from version 0; on NeoForge/Forge it comes from a built-in table (1.20–26.3).
+- First-launch chooser: on 1.20–1.20.1 it is shown before vanilla's accessibility onboarding, on 1.20.2+ after it (it
+  is part of vanilla's start-up screen chain). In both cases its buttons continue where vanilla would have gone (title
+  screen, or the server/world of a quick-play launch).
+- The chooser can be used with the keyboard: arrow keys pick a preset, Enter uses it, Escape keeps the current one.
 
 ### presets.json5 reference
 
@@ -238,8 +287,15 @@ Use the mods' own config switches (e.g. Voxy/Iris enable flags) in presets inste
 
 ## Building
 
+One branch (`multiloader`) builds every jar with [Stonecutter](https://stonecutter.kikugie.dev/): Loom
+(fabric-loom-remap before 26.1, fabric-loom from 26.1) for Fabric, ModDevGradle for NeoForge and ModDevGradle
+legacyforge for Forge 1.20.1. Version-specific code is marked with `//? if` comments; per-version settings are in
+`stonecutter.properties.toml`. Sources: `src/core` (loader-independent engine, pure Java), `src/main` (screens, mixins,
+loader entry points), `src/early` (NeoForge/Forge early hooks, nested jar), `src/stubs` (Mod Menu API for compiling).
+
 ```
-./gradlew build      # JDK 25; jar in build/libs, unit tests for all formats and the start-up rules
+./gradlew build collectJar   # JDK 17, 21 and 25 as toolchains; all jars in build/libs (reproducible),
+                             # unit tests of the core in the 26.3-fabric node
 ```
 
 ## Example folder

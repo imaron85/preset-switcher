@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[${fml_min},)"
+license = "${license}"
+issueTrackerURL = "${issues}"
+
+[[mods]]
+modId = "${id}"
+version = "${version}"
+displayName = "${name}"
+authors = "${authors}"
+description = "${description}"
+displayURL = "${homepage}"
+logoFile = "assets/presetswitcher/icon.png"
+# Client-only mod: servers ignore it and clients need it on no server
+displayTest = "IGNORE_ALL_VERSION"
+
+[[dependencies.${id}]]
+modId = "forge"
+mandatory = true
+versionRange = "[${loader_min},)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.${id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "CLIENT"

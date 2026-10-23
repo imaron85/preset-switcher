@@ -91,7 +91,7 @@ public final class JsonFormat implements FileFormat {
 			for (Map.Entry<?, ?> e : map.entrySet()) {
 				path.add((String) e.getKey());
 				flatten(e.getValue(), path, out);
-				path.removeLast();
+				path.remove(path.size() - 1);
 			}
 		} else if (!path.isEmpty()) {
 			out.add(new Assignment(List.copyOf(path), value));
